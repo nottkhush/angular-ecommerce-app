@@ -1,0 +1,66 @@
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Create an Account</h2>
+            <p>Join us to start shopping</p>
+        </div>
+
+        <div class="success-banner" *ngIf="success">
+            <i class="icon-success"></i>
+            <span>Registration successful! Redirecting to login...</span>
+        </div>
+
+        <form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="auth-form" *ngIf="!success">
+            <div class="error-banner" *ngIf="error">
+                <i class="icon-error"></i>
+                <span>{{ error }}</span>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <div class="input-wrapper">
+                    <input type="text" id="name" name="name" [(ngModel)]="registerData.name" required
+                        placeholder="John Doe" #nameInput="ngModel"
+                        [class.invalid]="nameInput.invalid && (nameInput.dirty || nameInput.touched)">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-wrapper">
+                    <input type="email" id="email" name="email" [(ngModel)]="registerData.email" required
+                        placeholder="john@example.com" #emailInput="ngModel"
+                        [class.invalid]="emailInput.invalid && (emailInput.dirty || emailInput.touched)">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" name="password" [(ngModel)]="registerData.password" required
+                        minlength="6" placeholder="••••••••" #passwordInput="ngModel"
+                        [class.invalid]="passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="confirmPassword" name="confirmPassword"
+                        [(ngModel)]="registerData.confirmPassword" required placeholder="••••••••"
+                        #confirmPasswordInput="ngModel"
+                        [class.invalid]="(confirmPasswordInput.invalid && (confirmPasswordInput.dirty || confirmPasswordInput.touched)) || (registerData.confirmPassword !== registerData.password && confirmPasswordInput.touched)">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary" [disabled]="registerForm.invalid || isLoading">
+                <span *ngIf="!isLoading">Create Account</span>
+                <span *ngIf="isLoading" class="spinner"></span>
+            </button>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a routerLink="/auth/login">Sign in</a></p>
+            </div>
+        </form>
+    </div>
+</div>

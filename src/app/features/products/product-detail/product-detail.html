@@ -1,0 +1,70 @@
+<div class="detail-container">
+    <div class="breadcrumb">
+        <a routerLink="/products">Products</a>
+        <span class="separator">/</span>
+        <span class="current" *ngIf="product">{{ product.category }}</span>
+    </div>
+
+    <div class="loading-state" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>Loading product details...</p>
+    </div>
+
+    <div class="error-state" *ngIf="error">
+        <div class="error-icon"></div>
+        <h3>Oops!</h3>
+        <p>{{ error }}</p>
+        <button class="btn-secondary" routerLink="/products">Back to Products</button>
+    </div>
+
+    <div class="product-layout" *ngIf="!loading && product">
+        <div class="product-image-section">
+            <div class="image-wrapper">
+                <img [src]="product.image" [alt]="product.title">
+            </div>
+        </div>
+
+        <div class="product-info-section">
+            <div class="category-badge">{{ product.category }}</div>
+            <h1 class="product-title">{{ product.title }}</h1>
+
+            <div class="rating">
+                <div class="stars">
+                    <span class="star filled" *ngFor="let s of getRatingStars(product.rating.rate)">★</span>
+                    <span class="star" *ngFor="let s of getEmptyStars(product.rating.rate)">☆</span>
+                </div>
+                <span class="rating-count" *ngIf="product.rating">({{ product.rating.count }} reviews)</span>
+            </div>
+
+            <div class="price-section">
+                <span class="currency">$</span>
+                <span class="amount">{{ product.price | number:'1.2-2' }}</span>
+            </div>
+
+            <div class="description-section">
+                <h3>Description</h3>
+                <p>{{ product.description }}</p>
+            </div>
+
+            <div class="features">
+                <div class="feature-item">
+                    <i class="icon-delivery"></i>
+                    <span>Free Delivery over $50</span>
+                </div>
+                <div class="feature-item">
+                    <i class="icon-return"></i>
+                    <span>30-Day Return Policy</span>
+                </div>
+            </div>
+
+            <div class="action-section">
+                <button class="btn-primary" [class.success]="addedToCart" (click)="addToCart()">
+                    <span *ngIf="!addedToCart">Add to Cart</span>
+                    <span *ngIf="addedToCart">
+                        <i class="icon-check"></i> Added!
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

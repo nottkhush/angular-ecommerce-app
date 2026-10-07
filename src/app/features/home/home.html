@@ -1,0 +1,38 @@
+<div class="home-container">
+    <!-- Hero Section -->
+    <section class="hero max-width-wrapper">
+        <div class="hero-content">
+            <span class="badge">New Arrivals 2026</span>
+            <h1>Discover Your Next Favorite <span class="highlight">Thing</span>.</h1>
+            <p>Premium quality products carefully selected for you. Upgrade your lifestyle with our exclusive,
+                handpicked collection.</p>
+            <div class="hero-actions">
+                <a routerLink="/products" class="btn btn-primary">Shop Now</a>
+                <a routerLink="/products" fragment="featured" class="btn btn-secondary">Explore Featured</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <!-- Abstract modern shape placeholder -->
+            <div class="abstract-shape"></div>
+        </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section class="featured-section bg-light" id="featured">
+        <div class="max-width-wrapper">
+            <div class="section-header">
+                <h2>Trending Now</h2>
+                <a routerLink="/products" class="view-all">View All Products &rarr;</a>
+            </div>
+
+            <div *ngIf="loading" class="loading-state">
+                <div class="spinner"></div>
+                <p>Loading amazing products...</p>
+            </div>
+
+            <div *ngIf="!loading" class="products-grid">
+                <app-product-card *ngFor="let product of featuredProducts" [product]="product"></app-product-card>
+            </div>
+        </div>
+    </section>
+</div>

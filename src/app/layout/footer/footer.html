@@ -1,0 +1,63 @@
+<footer class="footer">
+    <div class="footer-container max-width-wrapper">
+        <div class="footer-grid">
+            <!-- Brand Section -->
+            <div class="footer-section brand-section">
+                <a routerLink="/" class="footer-logo">Store<span>Logo</span></a>
+                <p class="brand-description">
+                    Premium quality products carefully selected for you. Upgrade your lifestyle with our exclusive,
+                    handpicked collection.
+                </p>
+                <div class="social-links">
+                    <a href="#" class="social-link" aria-label="Facebook"><i class="icon-facebook"></i></a>
+                    <a href="#" class="social-link" aria-label="Twitter"><i class="icon-twitter"></i></a>
+                    <a href="#" class="social-link" aria-label="Instagram"><i class="icon-instagram"></i></a>
+                </div>
+            </div>
+
+            <!-- Quick Links Section -->
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a routerLink="/">Home</a></li>
+                    <li><a routerLink="/products">Shop All</a></li>
+                    <li><a routerLink="/products" fragment="featured">Featured</a></li>
+                    <li><a routerLink="/auth/login">My Account</a></li>
+                </ul>
+            </div>
+
+            <!-- Customer Service Section -->
+            <div class="footer-section">
+                <h3>Customer Service</h3>
+                <ul class="footer-links">
+                    <li><a routerLink="/support">Support Center</a></li>
+                    <li><a routerLink="/returns">Returns & Exchanges</a></li>
+                    <li><a routerLink="/shipping">Shipping Info</a></li>
+                    <li><a routerLink="/faq">FAQ</a></li>
+                </ul>
+            </div>
+
+            <!-- Newsletter Section -->
+            <div class="footer-section newsletter-section">
+                <h3>Newsletter</h3>
+                <p>Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.</p>
+                <form class="newsletter-form" (ngSubmit)="$event.preventDefault()">
+                    <input type="email" placeholder="Enter your email" required aria-label="Email address">
+                    <button type="submit" aria-label="Subscribe"><i class="icon-send"></i></button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="footer-bottom">
+            <div class="copyright">
+                &copy; {{ currentYear }} StoreLogo. All rights reserved.
+            </div>
+            <div class="payment-methods">
+                <i class="icon-visa" title="Visa"></i>
+                <i class="icon-mastercard" title="Mastercard"></i>
+                <i class="icon-paypal" title="PayPal"></i>
+            </div>
+        </div>
+    </div>
+</footer>

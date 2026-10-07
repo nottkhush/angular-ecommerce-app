@@ -1,0 +1,15 @@
+<article class="product-card">
+    <div class="image-container" [routerLink]="['/products', product.id]" style="cursor: pointer;">
+        <img [src]="product.image" [alt]="product.title" loading="lazy">
+    </div>
+    <div class="product-info">
+        <span class="category">{{ product.category }}</span>
+        <h3 class="title" [title]="product.title" [routerLink]="['/products', product.id]" style="cursor: pointer;">{{
+            product.title }}</h3>
+        <div class="price-rating">
+            <span class="price">{{ product.price | currency }}</span>
+            <span class="rating">⭐ {{ product.rating.rate }} ({{ product.rating.count }})</span>
+        </div>
+        <button class="add-btn" (click)="addToCart()">Add to Cart</button>
+    </div>
+</article>
