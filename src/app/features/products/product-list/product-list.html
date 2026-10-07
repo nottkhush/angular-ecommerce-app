@@ -4,53 +4,55 @@
         <p>Discover our wide range of premium items</p>
     </div>
 
-    <div class="category-filters" *ngIf="!loading && categories.length > 0">
-        <button *ngFor="let category of categories" class="category-chip" [class.active]="category === activeCategory"
-            (click)="filterByCategory(category)">
-            {{ category }}
-        </button>
-    </div>
+    <ng-container *ngIf="vm$ | async as vm; else loadingTpl">
+        <div class="search-box">
+            <input class="search-input" type="text" placeholder="Search products..." [formControl]="search" />
+        </div>
 
-    <div class="loading-state" *ngIf="loading">
-        <div class="spinner"></div>
-        <p>Loading products...</p>
-    </div>
-
-    <div class="products-grid" *ngIf="!loading">
-        <app-product-card *ngFor="let product of paginatedProducts; trackBy: trackById" [product]="product">
-        </app-product-card>
-    </div>
-
-    <!-- Pagination Controls -->
-    <div class="pagination-controls" *ngIf="!loading && totalPages > 1">
-        <button class="pagination-btn" [disabled]="currentPage === 1" (click)="prevPage()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="15 18 9 12 15 6"></polyline>
-            </svg>
-            Prev
-        </button>
-
-        <div class="page-numbers">
-            <button class="page-number" *ngFor="let page of getPageNumbers()" [class.active]="currentPage === page"
-                (click)="goToPage(page)">
-                {{ page }}
+        <div class="category-filters" *ngIf="vm.categories.length > 1">
+            <button *ngFor="let category of vm.categories" class="category-chip"
+                [class.active]="category === vm.activeCategory" (click)="filterByCategory(category)">
+                {{ category }}
             </button>
         </div>
 
-        <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
-            Next
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-        </button>
-    </div>
+        <div class="products-grid">
+            <app-product-card *ngFor="let product of vm.items; trackBy: trackById" [product]="product">
+            </app-product-card>
+        </div>
 
-    <div class="empty-state" *ngIf="!loading && filteredProducts.length === 0">
-        <div class="empty-icon"></div>
-        <h3>No Products Found</h3>
-        <p>We couldn't find any products in this category.</p>
-        <button class="btn-primary" (click)="filterByCategory('All')">Clear Filters</button>
-    </div>
+        <div class="pagination-controls" *ngIf="vm.totalPages > 1">
+            <button class="pagination-btn" [disabled]="vm.currentPage === 1" (click)="goToPage(vm.currentPage - 1)">
+                Prev
+            </button>
+            <div class="page-numbers">
+                <button class="page-number" *ngFor="let page of vm.pages" [class.active]="vm.currentPage === page"
+                    (click)="goToPage(page)">
+                    {{ page }}
+                </button>
+            </div>
+            <button class="pagination-btn" [disabled]="vm.currentPage === vm.totalPages"
+                (click)="goToPage(vm.currentPage + 1)">
+                Next
+            </button>
+        </div>
+
+        <div class="empty-state" *ngIf="vm.error">
+            <h3>Something went wrong</h3>
+            <p>Failed to load products. Please try again later.</p>
+        </div>
+
+        <div class="empty-state" *ngIf="!vm.error && vm.total === 0">
+            <h3>No Products Found</h3>
+            <p>Nothing matches your search or category.</p>
+            <button class="btn-primary" (click)="clearFilters()">Clear Filters</button>
+        </div>
+    </ng-container>
+
+    <ng-template #loadingTpl>
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading products...</p>
+        </div>
+    </ng-template>
 </div>

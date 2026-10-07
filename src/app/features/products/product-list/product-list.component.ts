@@ -1,5 +1,9 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { BehaviorSubject, combineLatest, of } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, shareReplay, startWith } from 'rxjs/operators';
 import { ProductService } from '../../../core/services/product.service';
 import { Product } from '../../../shared/models/product.model';
 import { ProductCardComponent } from '../../../shared/product-card/product-card';
@@ -8,102 +12,77 @@ import { ProductCardComponent } from '../../../shared/product-card/product-card'
     selector: 'app-product-list',
     standalone: true,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [CommonModule, ProductCardComponent],
+    imports: [CommonModule, ReactiveFormsModule, ProductCardComponent],
     templateUrl: './product-list.html',
     styleUrls: ['./product-list.css']
 })
-export class ProductListComponent implements OnInit {
-    products: Product[] = [];
-    filteredProducts: Product[] = [];
-    paginatedProducts: Product[] = []; // Products for current page
-    categories: string[] = [];
-    activeCategory: string = 'All';
-    currentPage: number = 1;
-    itemsPerPage: number = 6;
-    totalPages: number = 1;
-    loading: boolean = true;
+export class ProductListComponent {
+    private productService = inject(ProductService);
+    private readonly itemsPerPage = 6;
 
-    constructor(private productService: ProductService, private cdr: ChangeDetectorRef) { }
+    readonly search = new FormControl('', { nonNullable: true });
+    private category$ = new BehaviorSubject<string>('All');
+    private page$ = new BehaviorSubject<number>(1);
 
-    ngOnInit(): void {
-        this.productService.getProducts().subscribe({
-            next: (products) => {
-                this.products = products;
-                this.filteredProducts = products;
-                this.updatePagination();
+    private search$ = this.search.valueChanges.pipe(
+        debounceTime(300),
+        map(v => v.trim().toLowerCase()),
+        startWith(''),
+        distinctUntilChanged()
+    );
 
-                // Extract unique categories
-                const allCategories = products.map(p => p.category);
-                this.categories = ['All', ...Array.from(new Set(allCategories))];
+    // One HTTP call, shared by every subscriber
+    private products$ = this.productService.getProducts().pipe(
+        map(products => ({ products, error: false })),
+        catchError(() => of({ products: [] as Product[], error: true })),
+        shareReplay({ bufferSize: 1, refCount: true })
+    );
 
-                this.loading = false;
-                this.cdr.markForCheck();
-            },
-            error: (err) => {
-                console.error('Failed to load products', err);
-                this.loading = false;
-                this.cdr.markForCheck();
-            }
-        });
+    readonly vm$ = combineLatest([this.products$, this.search$, this.category$, this.page$]).pipe(
+        map(([res, query, category, page]) => {
+            const filtered = res.products.filter(p =>
+                (category === 'All' || p.category === category) &&
+                (!query || p.title.toLowerCase().includes(query))
+            );
+            const totalPages = Math.max(1, Math.ceil(filtered.length / this.itemsPerPage));
+            const currentPage = Math.min(Math.max(page, 1), totalPages);
+            const start = (currentPage - 1) * this.itemsPerPage;
+
+            return {
+                error: res.error,
+                categories: ['All', ...Array.from(new Set(res.products.map(p => p.category)))],
+                activeCategory: category,
+                total: filtered.length,
+                items: filtered.slice(start, start + this.itemsPerPage),
+                currentPage,
+                totalPages,
+                pages: Array.from({ length: totalPages }, (_, i) => i + 1)
+            };
+        })
+    );
+
+    constructor() {
+        // New search term goes back to page 1
+        this.search.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => this.page$.next(1));
     }
 
     filterByCategory(category: string): void {
-        this.activeCategory = category;
-        if (category === 'All') {
-            this.filteredProducts = this.products;
-        } else {
-            this.filteredProducts = this.products.filter(p => p.category === category);
-        }
-
-        this.currentPage = 1; // Reset to first page when filtering
-        this.updatePagination();
-    }
-
-    updatePagination(): void {
-        this.totalPages = Math.ceil(this.filteredProducts.length / this.itemsPerPage);
-
-        // Ensure current page is valid
-        if (this.currentPage > this.totalPages && this.totalPages > 0) {
-            this.currentPage = this.totalPages;
-        } else if (this.currentPage < 1) {
-            this.currentPage = 1;
-        }
-
-        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-        const endIndex = startIndex + this.itemsPerPage;
-        this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
-    }
-
-    nextPage(): void {
-        if (this.currentPage < this.totalPages) {
-            this.currentPage++;
-            this.updatePagination();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }
-
-    prevPage(): void {
-        if (this.currentPage > 1) {
-            this.currentPage--;
-            this.updatePagination();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        this.category$.next(category);
+        this.page$.next(1);
     }
 
     goToPage(page: number): void {
-        if (page >= 1 && page <= this.totalPages) {
-            this.currentPage = page;
-            this.updatePagination();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        this.page$.next(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    clearFilters(): void {
+        this.search.setValue('');
+        this.category$.next('All');
+        this.page$.next(1);
     }
 
     trackById(_: number, product: Product): number {
         return product.id;
-    }
-
-    // Helper to generate array of page numbers for template
-    getPageNumbers(): number[] {
-        return Array.from({ length: this.totalPages }, (_, i) => i + 1);
     }
 }
