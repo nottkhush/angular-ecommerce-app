@@ -7,7 +7,7 @@ const app = express();
 const SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
 const PORT = process.env.PORT || 3000;
 
-app.use(cors({ origin: 'http://localhost:4200' }));
+app.use(cors({ origin: (process.env.CLIENT_ORIGIN || "http://localhost:4200").split(",") }));
 app.use(express.json());
 
 const users = [];
