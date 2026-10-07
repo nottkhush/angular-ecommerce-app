@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ProductService } from '../../../core/services/product.service';
@@ -8,6 +8,7 @@ import { Product } from '../../../shared/models/product.model';
 @Component({
     selector: 'app-product-detail',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule, RouterModule],
     templateUrl: './product-detail.html',
     styleUrls: ['./product-detail.css']
@@ -21,7 +22,8 @@ export class ProductDetailComponent implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private productService: ProductService,
-        private cartService: CartService
+        private cartService: CartService,
+        private cdr: ChangeDetectorRef
     ) { }
 
     ngOnInit(): void {
@@ -32,6 +34,7 @@ export class ProductDetailComponent implements OnInit {
             } else {
                 this.error = 'Invalid product ID';
                 this.loading = false;
+                this.cdr.markForCheck();
             }
         });
     }
@@ -44,11 +47,13 @@ export class ProductDetailComponent implements OnInit {
             next: (product) => {
                 this.product = product;
                 this.loading = false;
+                this.cdr.markForCheck();
             },
             error: (err) => {
                 console.error('Error fetching product', err);
                 this.error = 'Failed to load product details. Please try again later.';
                 this.loading = false;
+                this.cdr.markForCheck();
             }
         });
     }
@@ -61,6 +66,7 @@ export class ProductDetailComponent implements OnInit {
             // Reset button state after 2 seconds
             setTimeout(() => {
                 this.addedToCart = false;
+                this.cdr.markForCheck();
             }, 2000);
         }
     }

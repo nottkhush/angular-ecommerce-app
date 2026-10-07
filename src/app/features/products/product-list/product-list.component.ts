@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService } from '../../../core/services/product.service';
 import { Product } from '../../../shared/models/product.model';
@@ -7,6 +7,7 @@ import { ProductCardComponent } from '../../../shared/product-card/product-card'
 @Component({
     selector: 'app-product-list',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule, ProductCardComponent],
     templateUrl: './product-list.html',
     styleUrls: ['./product-list.css']
@@ -22,7 +23,7 @@ export class ProductListComponent implements OnInit {
     totalPages: number = 1;
     loading: boolean = true;
 
-    constructor(private productService: ProductService) { }
+    constructor(private productService: ProductService, private cdr: ChangeDetectorRef) { }
 
     ngOnInit(): void {
         this.productService.getProducts().subscribe({
@@ -36,10 +37,12 @@ export class ProductListComponent implements OnInit {
                 this.categories = ['All', ...Array.from(new Set(allCategories))];
 
                 this.loading = false;
+                this.cdr.markForCheck();
             },
             error: (err) => {
                 console.error('Failed to load products', err);
                 this.loading = false;
+                this.cdr.markForCheck();
             }
         });
     }
@@ -93,6 +96,10 @@ export class ProductListComponent implements OnInit {
             this.updatePagination();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+    }
+
+    trackById(_: number, product: Product): number {
+        return product.id;
     }
 
     // Helper to generate array of page numbers for template

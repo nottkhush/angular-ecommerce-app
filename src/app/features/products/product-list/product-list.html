@@ -17,7 +17,7 @@
     </div>
 
     <div class="products-grid" *ngIf="!loading">
-        <app-product-card *ngFor="let product of paginatedProducts" [product]="product">
+        <app-product-card *ngFor="let product of paginatedProducts; trackBy: trackById" [product]="product">
         </app-product-card>
     </div>
 
