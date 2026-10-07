@@ -1,145 +1,63 @@
-# 🛍️ Angular E-Commerce Application
+# AuraShop
 
-![Angular](https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![RxJS](https://img.shields.io/badge/RxJS-B7178C?style=for-the-badge&logo=reactivex&logoColor=white)
-![Vitest](https://img.shields.io/badge/Vitest-FCC72B?style=for-the-badge&logo=vitest&logoColor=black)
+Angular storefront with a custom Express + JWT backend. Built on top of [adsrikanth11/angular-ecommerce-app](https://github.com/adsrikanth11/angular-ecommerce-app), which gave me the UI and base structure. Everything listed under "What I built" is my own work on top of it.
 
-A modern, responsive, and fully-featured E-Commerce web application built with **Angular 21**. This project demonstrates a scalable architecture, standalone components, lazy loading, and modern web development best practices.
+## Stack
+- Frontend: Angular 21, TypeScript, RxJS, Angular Router (lazy-loaded feature modules)
+- Backend: Node.js, Express, JSON Web Tokens, bcrypt
 
----
+## What I built
+- **Auth guard** on `/checkout` with a `returnUrl` redirect back after login
+- **JWT HTTP interceptor** that attaches the token only to my own API and handles 401s
+- **Real auth flow**: `AuthService`, register and login against the API, header login/logout state
+- **RxJS product search**: `debounceTime`, `distinctUntilChanged`, `switchMap` (cancels stale requests), `combineLatest`, `shareReplay`, and the `async` pipe
+- **Performance**: `OnPush` change detection and `trackBy` on product views
+- **Express API** (`server/`) with protected routes and server-side search and category filtering
+- **Lighthouse pass**: SEO and accessibility fixes (meta description, robots.txt, labels, heading order, color contrast)
 
-## ✨ Key Features
+## API
+| Method | Endpoint | Auth |
+| --- | --- | --- |
+| POST | `/api/auth/register` | no |
+| POST | `/api/auth/login` | no |
+| GET | `/api/me` | JWT |
+| GET | `/api/products?search=&category=&limit=` | no |
+| GET | `/api/products/:id` | no |
+| GET | `/api/categories` | no |
 
-- **🔐 User Authentication**: Secure login and registration functionality.
-- **📦 Product Catalog**: Browse products with detailed views.
-- **🛒 Shopping Cart**: Add, edit, and remove items from the cart seamlessly.
-- **💳 Checkout Flow**: Streamlined and secure checkout process.
-- **⚡ Lazy Loading**: Optimized performance with route-based lazy loading.
-- **📱 Responsive Design**: A beautiful, mobile-first UI experience.
+## Run locally
+Requires Node 20.19+ or 22.12+.
 
----
-
-## 🏗️ Tech Stack
-
-- **Framework**: [Angular 21.1.0](https://github.com/angular/angular-cli)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Reactivity**: [RxJS](https://rxjs.dev/)
-- **Testing**: [Vitest](https://vitest.dev/) for blazing-fast unit tests.
-
----
-
-## 📁 Project Structure
-
-The project follows a feature-based scalable architecture:
-
-```text
-src/
-├── app/
-│   ├── core/         # Singleton services, interceptors, and guards.
-│   │   ├── guards/
-│   │   ├── interceptors/
-│   │   └── services/
-│   ├── features/     # Feature modules (Lazy Loaded).
-│   │   ├── auth/     # Login & Registration.
-│   │   ├── cart/     # Shopping cart management.
-│   │   ├── checkout/ # Checkout process.
-│   │   ├── home/     # Landing page & dashboard.
-│   │   └── products/ # Product catalog and details.
-│   ├── layout/       # Shared UI layouts.
-│   │   ├── footer/
-│   │   └── header/
-│   └── shared/       # Reusable UI components, pipes, and models.
-│       ├── components/
-│       ├── models/
-│       ├── pipes/
-│       └── product-card/
-└── environments/     # Environment-specific configurations (dev vs prod).
-```
-
----
-
-## 🚀 Getting Started
-
-Follow these instructions to set up the project locally.
-
-### Prerequisites
-
-Ensure you have the following installed:
-- **Node.js**: `v24.x` or higher
-- **npm**: `v11.x` or higher (The project uses npm v11.6.2)
-- **Angular CLI**: Install globally via `npm install -g @angular/cli@21.1.0`
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/adsrikanth11/angular-ecommerce-app.git
-   cd angular-ecommerce-app
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-### Environment Configuration
-
-The application uses Angular environments to manage different configurations (like API endpoints) for development and production.
-
-- `src/environments/environment.development.ts`: Used for local development (`ng serve`).
-- `src/environments/environment.ts`: Used for production (`ng build`).
-
-Make sure to check or update the `apiUrl` in these files to point to your backend.
-
-
-### Development Server
-
-Run the development server sequentially:
 ```bash
+# 1. API (port 3000)
+cd server
+npm install
+node index.js
+
+# 2. Frontend (new terminal, repo root)
+npm install
 npm start
-# or
-ng serve
 ```
-Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+Open http://localhost:4200
 
-### Building for Production
+Optional env vars for the API: `JWT_SECRET`, `PORT`, `CLIENT_ORIGIN` (comma-separated allowed origins).
 
-Compile the project for production:
-```bash
-npm run build
-# or
-ng build
-```
-The build artifacts will be stored in the `dist/` directory.
+## Lighthouse
+Desktop preset, local production build, `/products` page. Full report in [`docs/lighthouse-report.html`](docs/lighthouse-report.html).
 
-### Running Tests
+| Performance | Accessibility | Best Practices | SEO |
+| --- | --- | --- | --- |
+| 84 | 96 | 100 | 100 |
 
-Execute unit tests utilizing the Vitest test runner:
-```bash
-npm test
-# or
-ng test
-```
+The remaining performance hit is layout shift (CLS): the footer jumps down when the product grid loads. Skeleton loaders that reserve the grid's height would fix it.
 
----
+## Known limitations
+- Users are stored in memory and reset when the server restarts
+- Products are seeded from FakeStoreAPI at server start
+- No tests beyond the generated specs
+- Not deployed, runs locally only
 
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! 
-Feel free to check out the [issues page](../../issues).
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📝 License
-
-This project is open-source and available under the terms of the [MIT License](LICENSE).
-
----
-*Generated and maintained with ❤️ by [Srikanth Ambal Dhage](https://github.com/adsrikanth11)*
+## Next steps
+- Persist users and products (SQLite or MongoDB)
+- Skeleton loaders to remove the layout shift
+- Flutter companion app against the same API
