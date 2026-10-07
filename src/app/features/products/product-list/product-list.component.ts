@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, map, shareReplay, startWith } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { ProductService } from '../../../core/services/product.service';
 import { Product } from '../../../shared/models/product.model';
 import { ProductCardComponent } from '../../../shared/product-card/product-card';
@@ -24,36 +24,41 @@ export class ProductListComponent {
     private category$ = new BehaviorSubject<string>('All');
     private page$ = new BehaviorSubject<number>(1);
 
-    private search$ = this.search.valueChanges.pipe(
+    private query$ = this.search.valueChanges.pipe(
         debounceTime(300),
         map(v => v.trim().toLowerCase()),
         startWith(''),
         distinctUntilChanged()
     );
 
-    // One HTTP call, shared by every subscriber
-    private products$ = this.productService.getProducts().pipe(
-        map(products => ({ products, error: false })),
-        catchError(() => of({ products: [] as Product[], error: true })),
+    private categories$ = this.productService.getCategories().pipe(
+        map(c => ['All', ...c]),
+        catchError(() => of(['All'])),
         shareReplay({ bufferSize: 1, refCount: true })
     );
 
-    readonly vm$ = combineLatest([this.products$, this.search$, this.category$, this.page$]).pipe(
-        map(([res, query, category, page]) => {
-            const filtered = res.products.filter(p =>
-                (category === 'All' || p.category === category) &&
-                (!query || p.title.toLowerCase().includes(query))
-            );
-            const totalPages = Math.max(1, Math.ceil(filtered.length / this.itemsPerPage));
+    // switchMap cancels the previous in-flight request when the query or category changes
+    private results$ = combineLatest([this.query$, this.category$]).pipe(
+        switchMap(([query, category]) =>
+            this.productService.getProducts(query, category).pipe(
+                map(products => ({ products, error: false })),
+                catchError(() => of({ products: [] as Product[], error: true }))
+            )
+        )
+    );
+
+    readonly vm$ = combineLatest([this.results$, this.categories$, this.category$, this.page$]).pipe(
+        map(([res, categories, category, page]) => {
+            const totalPages = Math.max(1, Math.ceil(res.products.length / this.itemsPerPage));
             const currentPage = Math.min(Math.max(page, 1), totalPages);
             const start = (currentPage - 1) * this.itemsPerPage;
 
             return {
                 error: res.error,
-                categories: ['All', ...Array.from(new Set(res.products.map(p => p.category)))],
+                categories,
                 activeCategory: category,
-                total: filtered.length,
-                items: filtered.slice(start, start + this.itemsPerPage),
+                total: res.products.length,
+                items: res.products.slice(start, start + this.itemsPerPage),
                 currentPage,
                 totalPages,
                 pages: Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -62,7 +67,6 @@ export class ProductListComponent {
     );
 
     constructor() {
-        // New search term goes back to page 1
         this.search.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => this.page$.next(1));
     }
 

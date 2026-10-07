@@ -120,3 +120,4 @@
     background-color: #f8fafc;
     border-color: #cbd5e1;
 }
+button.login-btn { cursor: pointer; font: inherit; }

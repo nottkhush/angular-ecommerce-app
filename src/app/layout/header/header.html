@@ -23,7 +23,10 @@
                 </svg>
                 <span class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
             </a>
-            <a routerLink="/auth/login" class="login-btn">Login</a>
+            <a *ngIf="!authService.isLoggedIn(); else logoutTpl" routerLink="/auth/login" class="login-btn">Login</a>
+            <ng-template #logoutTpl>
+                <button type="button" class="login-btn" (click)="logout()">Logout</button>
+            </ng-template>
         </div>
     </div>
 </header>

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
     selector: 'app-login',
@@ -11,29 +12,29 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
     styleUrls: ['./login.css']
 })
 export class LoginComponent {
-    loginData = {
-        email: '',
-        password: ''
-    };
+    loginData = { email: '', password: '' };
     isLoading = false;
     error = '';
 
-    constructor(private router: Router, private route: ActivatedRoute) { }
+    constructor(
+        private router: Router,
+        private route: ActivatedRoute,
+        private authService: AuthService
+    ) { }
 
     onSubmit() {
         this.isLoading = true;
         this.error = '';
 
-        // Simulate login request
-        setTimeout(() => {
-            if (this.loginData.email && this.loginData.password) {
-                localStorage.setItem('token', 'mock_token_123');
+        this.authService.login(this.loginData.email, this.loginData.password).subscribe({
+            next: () => {
                 const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/';
                 this.router.navigateByUrl(returnUrl);
-            } else {
-                this.error = 'Please enter valid credentials';
+            },
+            error: (err) => {
+                this.error = err.error?.message || 'Login failed. Please try again.';
                 this.isLoading = false;
             }
-        }, 1000);
+        });
     }
 }

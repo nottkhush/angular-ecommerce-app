@@ -7,7 +7,7 @@
 
         <div class="success-banner" *ngIf="success">
             <i class="icon-success"></i>
-            <span>Registration successful! Redirecting to login...</span>
+            <span>Registration successful! Redirecting...</span>
         </div>
 
         <form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="auth-form" *ngIf="!success">

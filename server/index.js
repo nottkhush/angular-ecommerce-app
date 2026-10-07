@@ -76,6 +76,10 @@ app.get('/api/products/:id', (req, res) => {
   res.json(product);
 });
 
+app.get("/api/categories", (req, res) => {
+  res.json([...new Set(products.map((p) => p.category))]);
+});
+
 loadProducts()
   .then(() => app.listen(PORT, () => console.log(`API on http://localhost:${PORT}`)))
   .catch((e) => console.error('Failed to seed products', e));
