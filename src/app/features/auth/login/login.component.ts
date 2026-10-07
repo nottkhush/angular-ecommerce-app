@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 @Component({
     selector: 'app-login',
@@ -18,7 +18,7 @@ export class LoginComponent {
     isLoading = false;
     error = '';
 
-    constructor(private router: Router) { }
+    constructor(private router: Router, private route: ActivatedRoute) { }
 
     onSubmit() {
         this.isLoading = true;
@@ -27,9 +27,9 @@ export class LoginComponent {
         // Simulate login request
         setTimeout(() => {
             if (this.loginData.email && this.loginData.password) {
-                // Successful login mock
                 localStorage.setItem('token', 'mock_token_123');
-                this.router.navigate(['/']);
+                const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/';
+                this.router.navigateByUrl(returnUrl);
             } else {
                 this.error = 'Please enter valid credentials';
                 this.isLoading = false;
