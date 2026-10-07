@@ -248,3 +248,5 @@
 .search-box { display: flex; justify-content: center; margin: 0 0 1.5rem; }
 .search-input { width: 100%; max-width: 420px; padding: 0.7rem 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; }
 .search-input:focus { outline: none; border-color: #6366f1; }
+
+.products-container { min-height: 100vh; }

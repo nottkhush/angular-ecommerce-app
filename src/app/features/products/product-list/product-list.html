@@ -6,7 +6,7 @@
 
     <ng-container *ngIf="vm$ | async as vm; else loadingTpl">
         <div class="search-box">
-            <input class="search-input" type="text" placeholder="Search products..." [formControl]="search" />
+            <input class="search-input" aria-label="Search products" type="text" placeholder="Search products..." [formControl]="search" />
         </div>
 
         <div class="category-filters" *ngIf="vm.categories.length > 1">

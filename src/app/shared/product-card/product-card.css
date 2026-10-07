@@ -89,7 +89,7 @@
 
 .rating {
   font-size: 13px;
-  color: #f59e0b;
+  color: #92400e;
   font-weight: 500;
   background-color: #fffbeb;
   padding: 4px 8px;
@@ -97,7 +97,7 @@
 }
 
 .add-btn {
-  background-color: #3b82f6;
+  background-color: #2563eb;
   color: white;
   border: none;
   border-radius: 8px;
@@ -110,7 +110,7 @@
 }
 
 .add-btn:hover {
-  background-color: #2563eb;
+  background-color: #1d4ed8;
 }
 
 .add-btn:active {

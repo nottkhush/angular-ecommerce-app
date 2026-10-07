@@ -4,8 +4,8 @@
     </div>
     <div class="product-info">
         <span class="category">{{ product.category }}</span>
-        <h3 class="title" [title]="product.title" [routerLink]="['/products', product.id]" style="cursor: pointer;">{{
-            product.title }}</h3>
+        <h2 class="title" [title]="product.title" [routerLink]="['/products', product.id]" style="cursor: pointer;">{{
+            product.title }}</h2>
         <div class="price-rating">
             <span class="price">{{ product.price | currency }}</span>
             <span class="rating">⭐ {{ product.rating.rate }} ({{ product.rating.count }})</span>
